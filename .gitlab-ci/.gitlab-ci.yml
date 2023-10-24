@@ -1,0 +1,16 @@
+
+image:
+  name: clevercloud/clever-tools:latest
+  entrypoint: [""]
+
+#-------------------------------
+# Deploy
+#-------------------------------
+workflow:
+  rules:
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  
+deploy to production:
+  stage: deploy
+  script: clever link ${APP_ID}; clever deploy
+  environment: production
