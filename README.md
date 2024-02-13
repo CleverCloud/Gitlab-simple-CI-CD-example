@@ -22,3 +22,18 @@ You need to set some variables in order to be able to use clever-tools in GitLab
 The rest of variables in this script are implicit in GitLab.
 
 More info can be found in [GitLab's doc](https://docs.gitlab.com/ee/topics/build_your_application.html)
+
+## Troubleshooting
+
+If you encounter the error
+
+> Failed to push your source code because your repository is shallow and therefore cannot be pushed to the Clever Cloud remote
+
+This means, GitLab make a [shallow clone](https://git-scm.com/docs/shallow) of the repository for the CI.
+This basically means the repository has an incomplete history.
+
+By default, GitLab uses a limited shallow clone as referenced here: <https://gitlab.com/gitlab-org/gitlab/-/issues/350100>
+
+Solution is to make sure one has a full copy of the repository.  
+To do so, in GitLab, go to `Settings` > `CI/CD` > `General pipelines` and scroll to the `Git strategy` section.  
+There either choose `git clone` to have a full clone of the repository or use `git fetch` but set `Git shallow clone` to `0` to make sure you get the full history
