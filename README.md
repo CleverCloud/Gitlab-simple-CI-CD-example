@@ -25,6 +25,8 @@ More info can be found in [GitLab's doc](https://docs.gitlab.com/ee/topics/build
 
 ## Troubleshooting
 
+### Shallow repository
+
 If you encounter the error
 
 > Failed to push your source code because your repository is shallow and therefore cannot be pushed to the Clever Cloud remote
@@ -37,3 +39,25 @@ By default, GitLab uses a limited shallow clone as referenced here: <https://git
 Solution is to make sure one has a full copy of the repository.  
 To do so, in GitLab, go to `Settings` > `CI/CD` > `General pipelines` and scroll to the `Git strategy` section.  
 There either choose `git clone` to have a full clone of the repository or use `git fetch` but set `Git shallow clone` to `0` to make sure you get the full history
+
+### Application not found
+
+If, when running the commmand 
+
+```bash
+clever link ${APP_ID}
+```
+
+You get the message
+
+```bash
+[ERROR] Application not found
+```
+
+This may mean you need to specify the organization aswell
+
+```bash
+clever link ${APP_ID} --org ${ORG_ID}
+````
+
+**Note**: The `ORG_ID`, or Organization ID, can be found in the upper right corner of your Clever Cloud Console
