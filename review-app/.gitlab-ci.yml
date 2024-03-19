@@ -1,0 +1,86 @@
+# Manual jobs to deploy review apps on any MR and deploy to prod on any commit on default branch
+
+stages:
+  - deploy
+  - update
+  - delete
+  - production
+
+variables:
+  GIT_DEPTH: 0
+  CLEVER_SECRET: $CLEVER_SECRET
+  CLEVER_TOKEN: $CLEVER_TOKEN
+  ORGA_ID: $ORGA_ID
+  # Add here any other variable your app uses.
+  # Inject them in your repository secrets. See https://docs.gitlab.com/ee/ci/variables/#for-a-project 
+
+# Docker image to use for every job
+image:
+  name: clevercloud/clever-tools:latest
+  entrypoint: [""]
+
+#-------------------------------
+# Deploy review app
+#-------------------------------
+
+# Replace the following values:
+# - <app_type> find the types here: https://github.com/CleverCloud/clever-tools?tab=readme-ov-file#create-an-application
+# - <project_name> the name of your GitLab project
+# - <region> find available regions here: https://github.com/CleverCloud/clever-tools?tab=readme-ov-file#create-an-application
+# - <EN_VAR> the environment variable your app uses
+# - <addon_name> the name of the add-on you want to link
+
+deploy review app:
+  stage: deploy
+  script:
+# Replace values between "< >"" and uncomment the script to start it running
+#    - echo "Deploying review app for Merge Request ${CI_MERGE_REQUEST_IID}"
+#    - clever create --type <app_type> <project_name>-MR-${CI_MERGE_REQUEST_IID} --alias <project_name>-MR-${CI_MERGE_REQUEST_IID} --region <region> --org ${ORGA_ID}
+#    - clever env set <EN_VAR> "${<EN_VAR>}"
+#    - clever domain add <project_name>-MR-${CI_MERGE_REQUEST_IID}.cleverapps.io
+# Use this if your app needs to connect to an add-on
+#    - clever service link-addon <addon_name>
+#    - clever deploy
+#    - echo "Deployment finished. Your app is available at https://<project_name>-MR-${CI_MERGE_REQUEST_IID}.cleverapps.io"
+  when: manual
+  only:
+    - merge_requests
+  environment:
+    name: review/MR-${CI_MERGE_REQUEST_IID}
+#    Replace <project_name> and uncomment this line
+#    url: https://<project_name>-${CI_MERGE_REQUEST_IID}.cleverapps.io
+
+#-------------------------------
+# Update review app
+#-------------------------------
+
+update review app:
+  stage: update
+# Replace <project_name> and uncomment the script
+#  script: clever link -o ${ORGA_ID} <project_name>-MR-${CI_MERGE_REQUEST_IID}; clever deploy
+  when: manual
+  only:
+    - merge_requests
+
+delete review app:
+  stage: delete
+  script:
+#  - clever link -o ${ORGA_ID} <project_name>-MR-${CI_MERGE_REQUEST_IID}
+#  - clever delete --alias <project_name>-MR-${CI_MERGE_REQUEST_IID} --yes
+  when: manual
+  only:
+    - merge_requests
+  environment:
+    name: review/MR-${CI_MERGE_REQUEST_IID}
+    action: stop
+
+#-------------------------------
+# Deploy
+#-------------------------------
+  
+deploy to production:
+  stage: production
+  script: clever link ${APP_ID}; clever deploy
+  environment: production
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

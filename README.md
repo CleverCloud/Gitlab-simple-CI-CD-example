@@ -1,24 +1,20 @@
 
-# Deploy from GitLab to Clever Cloud
+<p align="center">
+  <img src="/assets/clever-x-gitlab.png" alt="Clever Cloud loves GitLab">
+</p>
 
-This is a simple example of CI/CD file to deploy from GitLab to Clever Cloud using [clever-tools](https://www.clever-cloud.com/doc/getting-started/cli/)
+# 💡☁️ Deploy from GitLab to Clever Cloud
 
-To try it, add the `.gitlab-ci.yml` file at the root of your project.
+This project contains a collection of scripts to deploy from GitLab to [Clever Cloud](https://www.clever-cloud.com).
 
-This script does the following: 
+To try it, add the `.gitlab-ci.yml` file example in the folders at the root of your project. Every forlder contains a README with explanations.
 
-- download clever-tools (our CLI) Docker image
-- [overrides the entry-point](https://docs.gitlab.com/ee/ci/docker/using_docker_images.html#override-the-entrypoint-of-an-image) to be able to execute `clever` + `<arguments>`
-- applies a rule to only execute the workflow if we committed to the default branch (in the case of our project, it's `main`), which you can set in your GitLab project in **Settings > Repository > "Branch defaults"**
-- deploys the commit on our production app
+⚠️ You can only have one `.gitlab-ci.yml` in GitLab, you can combine scripts or remove them to customize your pipeline.
 
-## Environment Variables
+## 🦊 Use GitLab components
 
-You need to set some variables in order to be able to use clever-tools in GitLab jobs. Go to your project's **Settings > CI/CD > "Variables"** and add the following variables:
+Alternatively, you can use [Clever Cloud GitLab components](https://gitlab.com/explore/catalog/CleverCloud/clever-cloud-pipeline) from the catalog, and even import them in your self-hosted GitLab instance.
 
-- `CLEVER_TOKEN` AND `CLEVER_SECRET` (find it in your machine, usually in `~/.config/clever-cloud/clever-tools.json`)
-- `APP_ID` to avoid committing it (find it at the top right in Clever Cloud Console, in your application tab).
+## 🎓 Learn more
 
-The rest of variables in this script are implicit in GitLab.
-
-More info can be found in [GitLab's doc](https://docs.gitlab.com/ee/topics/build_your_application.html)
+Check [our CI/CD documentation](https://developers.clever-cloud.com/doc/ci-cd/) for more information on how to deploy from GitLab to Clever Cloud.
