@@ -1,0 +1,79 @@
+# Example script to deploy LimeSurvey on Clever Cloud
+# This app connects to a storage addon and a database addon
+# This script also sets environment variables for the review app
+
+# Clearly separate stages to avoid running the wrong job manually
+stages:
+  - deploy
+  - update
+  - delete
+
+# Variables injected in the GitLab repository
+variables:
+  GIT_DEPTH: 0
+  CLEVER_SECRET: $CLEVER_SECRET
+  CLEVER_TOKEN: $CLEVER_TOKEN
+  ORGA_ID: $ORGA_ID
+  ADMIN_EMAIL: $ADMIN_EMAIL
+  ADMIN_NAME: $ADMIN_NAME
+  BOUNCE_EMAIL: $BOUNCE_EMAIL
+  CC_FS_BUCKET: $CC_FS_BUCKET
+  ENCRYPTION_NONCE: $ENCRYPTION_NONCE
+  ENCRYPTION_SECRETBOX_KEY: $ENCRYPTION_SECRETBOX_KEY
+  SMTP_HOST: $SMTP_HOST
+  SMTP_PASSWORD: $SMTP_PASSWORD
+  SMTP_USER: $SMTP_USER
+
+#-------------------------------
+# Deploy to Clever Cloud on prod
+#-------------------------------  
+include:
+  - component: $CI_SERVER_HOST/<components-path>/deploy-to-prod@1.0.2
+    inputs:
+      stage: deploy
+      when: always
+
+#-------------------------------
+# Deploy review apps on MR
+#-------------------------------
+  - component: $CI_SERVER_HOST/<components-path>/create-review-app@1.0.2
+    inputs:
+      app-type: php
+      deploy: false
+  - component: $CI_SERVER_HOST/<components-path>/update-review-app@1.0.2
+    inputs:
+      stage: update
+  - component: $CI_SERVER_HOST/<components-path>/delete-review-app@1.0.2
+    inputs:
+      stage: delete
+
+#------------------------------------------------------------------
+# Declare en vars.
+# Runs just after "create review app" job and deploy the review app.
+#------------------------------------------------------------------
+set environment variables:
+  image: node:latest
+  stage: deploy
+  before_script:
+    - npm install -g clever-tools
+  script:
+    - clever link -o ${TEST_ORG_ID} ${CI_PROJECT_NAME}-MR-${CI_MERGE_REQUEST_IID}
+    - clever env set ADMIN_EMAIL "${ADMIN_EMAIL}"
+    - clever env set ADMIN_NAME "${ADMIN_NAME}"
+    - clever env set BOUNCE_EMAIL "${BOUNCE_EMAIL}"
+    - clever env set CC_FS_BUCKET "${CC_FS_BUCKET}"
+    - clever env set ENCRYPTION_NONCE "${ENCRYPTION_NONCE}"
+    - clever env set ENCRYPTION_SECRETBOX_KEY "${ENCRYPTION_SECRETBOX_KEY}"
+    - clever env set MAX_EMAILS "50"
+    - clever env set SMTP_HOST "${SMTP_HOST}"
+    - clever env set SMTP_PASSWORD "${SMTP_PASSWORD}"
+    - clever env set SMTP_USER "${SMTP_USER}"
+    - clever service link-addon <mysql-addon-name>
+    - clever service link-addon <fs-bucket-addon-name>
+    - clever deploy
+  when: manual
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+
+
+
