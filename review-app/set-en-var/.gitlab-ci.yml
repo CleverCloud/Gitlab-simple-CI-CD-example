@@ -23,6 +23,7 @@ variables:
   SMTP_HOST: $SMTP_HOST
   SMTP_PASSWORD: $SMTP_PASSWORD
   SMTP_USER: $SMTP_USER
+  TEST_ORG_ID: $TEST_ORG_ID
 
 #-------------------------------
 # Deploy to Clever Cloud on prod
