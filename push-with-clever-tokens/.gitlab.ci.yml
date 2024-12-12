@@ -1,0 +1,18 @@
+stages:
+  - deploy
+
+push:
+  when: always
+  stage: deploy
+  # Use a Docker image containing Git
+  image:
+    name: bitnami/git:latest
+    entrypoint: [""]
+  variables:
+    GIT_SUBMODULE_STRATEGY: none
+    GIT_STRATEGY: clone
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - git remote add clever https://${CLEVER_TOKEN}:${CLEVER_SECRET}@${HOST}/${APP_ID}.git
+    - git push clever HEAD:master --force
